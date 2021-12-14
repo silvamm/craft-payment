@@ -1,0 +1,16 @@
+
+
+config:
+  contas:
+    energia:
+      - celpe
+    cartao:
+      - nu pagamentos
+    aluguel:
+      - conceito trans mobi
+    celular:
+      - tim celular
+    condominio:
+      - pjbank pagamentos
+    internet:
+      - tim sa
