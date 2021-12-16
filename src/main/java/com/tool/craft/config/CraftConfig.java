@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
+@Data
 @Component
 @ConfigurationProperties(prefix = "config")
-@Data
 public class CraftConfig {
     private Map<String, List<String>> contas;
 }
