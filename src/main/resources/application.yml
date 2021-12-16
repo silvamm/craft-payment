@@ -14,3 +14,5 @@ config:
       - pjbank pagamentos
     internet:
       - tim sa
+    agua:
+      - compesa
