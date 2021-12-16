@@ -1,5 +1,6 @@
 package com.tool.craft.config;
 
+import com.tool.craft.enumm.BillType;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -11,5 +12,5 @@ import java.util.Map;
 @Component
 @ConfigurationProperties(prefix = "config")
 public class CraftConfig {
-    private Map<String, List<String>> contas;
+    private Map<BillType, List<String>> contas;
 }
