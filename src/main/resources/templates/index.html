@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Craft</title>
+</head>
+<body>
+    <h1>Welcome</h1>
+    <p th:text="${message}" th:if="${message ne null}"></p>
+    <form action="#" th:action="@{/start}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>

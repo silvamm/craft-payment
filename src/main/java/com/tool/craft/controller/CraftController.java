@@ -1,80 +1,54 @@
 package com.tool.craft.controller;
 
-import com.tool.craft.config.CraftConfig;
+import com.tool.craft.enumm.BillType;
+import com.tool.craft.service.AwsService;
+import com.tool.craft.service.CraftService;
+import com.tool.craft.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import software.amazon.awssdk.core.SdkBytes;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.rekognition.RekognitionClient;
-import software.amazon.awssdk.services.rekognition.model.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
-@RestController
+@Controller
 public class CraftController {
 
     @Autowired
-    private CraftConfig craftConfig;
+    private CraftService craftService;
 
-    @GetMapping("/start")
-    public void start(){
-        List<TextDetection> textDetections = detectTextLabels();
+    @Autowired
+    private AwsService awsService;
 
-        for (TextDetection textDetection: textDetections){
+    @Autowired
+    private PaymentService paymentService;
 
-            for (Map.Entry<String, List<String>> entry : craftConfig.getContas().entrySet()) {
-                List<String> beneficiarios = entry.getValue();
-                String conta = entry.getKey();
-                for (String beneficiario : beneficiarios) {
-
-                    if(textDetection.type().equals(TextTypes.LINE)
-                            && textDetection.detectedText().toLowerCase().contains(beneficiario)){
-                        System.out.println("Encontrei conta de " + conta);
-                        break;
-                    }
-
-                }
-
-            }
-
-        }
-
-        System.out.println("Finalizado");
+    @GetMapping("/")
+    public String index() {
+        return "index";
     }
 
-    public List<TextDetection> detectTextLabels() {
+    @PostMapping("/start")
+    public ModelAndView start(@RequestParam("file") MultipartFile file) throws IOException {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("index");
 
-        try {
-
-            RekognitionClient rekognitionClient = RekognitionClient.builder()
-                    .region(Region.US_WEST_2)
-                    .build();
-
-            InputStream sourceStream = new FileInputStream("/");
-            SdkBytes sourceBytes = SdkBytes.fromInputStream(sourceStream);
-
-            // Create an Image object for the source image
-            Image souImage = Image.builder()
-                    .bytes(sourceBytes)
-                    .build();
-
-            DetectTextRequest textRequest = DetectTextRequest.builder()
-                    .image(souImage)
-                    .build();
-
-            DetectTextResponse textResponse = rekognitionClient.detectText(textRequest);
-            return textResponse.textDetections();
-
-        } catch (RekognitionException | FileNotFoundException e) {
-            System.out.println(e.getMessage());
+        if (file.isEmpty()) {
+            modelAndView.addObject("message", "Envie um arquivo");
+            return modelAndView;
         }
 
-        return new ArrayList<>();
+        InputStream inputStream = file.getInputStream();
+        Optional<BillType> optionalBillType = craftService.startSearchIn(inputStream);
+        optionalBillType.ifPresent(billType ->  paymentService.save(billType, inputStream));
+
+        modelAndView.addObject("message", optionalBillType.map(type -> "Encontrado conta de " + type).orElseGet(() -> "Não encontrado"));
+        return modelAndView;
     }
+
 }
