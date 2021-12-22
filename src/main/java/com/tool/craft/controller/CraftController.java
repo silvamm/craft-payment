@@ -2,9 +2,7 @@ package com.tool.craft.controller;
 
 import com.tool.craft.enumm.BillType;
 import com.tool.craft.model.BillDetails;
-import com.tool.craft.service.AwsService;
-import com.tool.craft.service.CraftService;
-import com.tool.craft.service.PaymentService;
+import com.tool.craft.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +24,10 @@ public class CraftController {
     private CraftService craftService;
 
     @Autowired
-    private AwsService awsService;
+    private AwsS3Service awsS3Service;
+
+    @Autowired
+    private AwsRekognitionService awsRekognitionService;
 
     @Autowired
     private PaymentService paymentService;
@@ -51,11 +52,11 @@ public class CraftController {
 
         InputStream inputStream = file.getInputStream();
 
-        List<TextDetection> textDetections = awsService.detectTextLabelsIn(inputStream);
+        List<TextDetection> textDetections = awsRekognitionService.detectTextLabelsIn(inputStream);
         BillDetails billDetails = craftService.findBillDetails(textDetections);
 
         if(billDetails.filled()){
-            String s3Receipt = awsService.saveInBucketS3(inputStream);
+            String s3Receipt = awsS3Service.saveInBucket(inputStream);
             paymentService.save(billDetails, s3Receipt, inputStream);
             modelAndView.addObject("message", "Encontrado conta de " + billDetails.getType()
                     + " no valor de R$ " + billDetails.getAmount());
