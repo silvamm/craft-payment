@@ -17,9 +17,6 @@ public class PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
 
-    @Autowired
-    private AwsService awsService;
-
     public void save(BillDetails details, String s3Receipt, InputStream inputStream){
         Payment payment = new Payment();
         payment.setDate(LocalDateTime.now());
