@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PaymentService {
@@ -17,7 +18,7 @@ public class PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
 
-    public void save(BillDetails details, String s3Receipt, InputStream inputStream){
+    public void save(BillDetails details, String s3Receipt){
         Payment payment = new Payment();
         payment.setDate(LocalDateTime.now());
         payment.setBillType(details.getType());
@@ -25,6 +26,14 @@ public class PaymentService {
         payment.setAmount(details.getAmount());
 
         paymentRepository.save(payment);
+    }
+
+    public void delete(Long paymentId){
+        paymentRepository.deleteById(paymentId);
+    }
+
+    public Optional<Payment> findBy(Long paymnetId){
+        return paymentRepository.findById(paymnetId);
     }
 
     public List<Payment> findAll() {
