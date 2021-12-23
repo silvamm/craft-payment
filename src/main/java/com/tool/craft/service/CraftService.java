@@ -78,9 +78,10 @@ public class CraftService {
     }
 
     private String onlyNumberAndDot(String amount){
-        amount = amount.replaceAll("[^0-9,]","");
-        amount = amount.replaceAll(",", ".");
-        return amount;
+        String newAmount;
+        newAmount = amount.replaceAll("[^0-9,]","");
+        newAmount = amount.replaceAll(",", ".");
+        return newAmount;
     }
 
     private List<TextDetection> onlyLines(List<TextDetection> textDetections){
