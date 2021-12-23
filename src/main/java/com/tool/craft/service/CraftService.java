@@ -7,12 +7,12 @@ import com.tool.craft.model.LabelAmountGeometry;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.NumberUtils;
-import software.amazon.awssdk.services.rekognition.model.*;
+import software.amazon.awssdk.services.rekognition.model.TextDetection;
+import software.amazon.awssdk.services.rekognition.model.TextTypes;
 
-import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -78,9 +78,8 @@ public class CraftService {
     }
 
     private String onlyNumberAndDot(String amount){
-        String newAmount;
-        newAmount = amount.replaceAll("[^0-9,]","");
-        newAmount = amount.replaceAll(",", ".");
+        String newAmount = amount.replaceAll("[^0-9,]","");
+        newAmount = newAmount.replaceAll(",", ".");
         return newAmount;
     }
 
