@@ -4,13 +4,16 @@ spring:
     username:
     password:
   jpa:
-    hibernate.ddl-auto: none
+    hibernate.ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5Dialect
     show-sql: true
     formart_sql: true
-
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
   servlet:
     multipart:
       # max file size - default 1MB
@@ -19,13 +22,13 @@ spring:
       max-request-size: 25MB
 
 config:
-  contas:
+  bills:
     energia:
       - celpe
     cartao:
       - nu pagamentos
     aluguel:
-      - conceito trans mobi
+      - conceito trans imobi
     celular:
       - tim celular
     condominio:
