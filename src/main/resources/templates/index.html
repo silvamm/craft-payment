@@ -11,16 +11,23 @@
     <input type="file" name="file">
     <button type="submit">Register</button>
 </form>
-<table border = "1">
+<table border="1" style="margin-top: 10px;">
     <tr>
         <th>Date</th>
         <th>Amount</th>
         <th>Type</th>
+        <th>Action</th>
     </tr>
     <tr th:each="payment : ${payments}">
         <td th:text="${payment.date}"/>
         <td th:text="${payment.amount}"/>
         <td th:text="${payment.billType}"/>
+        <td>
+            <form th:action="@{/{payment_id}(payment_id=${payment.id})}" th:method="delete">
+                <input type="hidden" name="_method" value="delete"/>
+                <button type="submit" th:onclick="return confirm('Are you sure ?')">Delete</button>
+            </form>
+        </td>
     </tr>
 </table>
 
