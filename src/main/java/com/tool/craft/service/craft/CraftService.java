@@ -1,12 +1,12 @@
-package com.tool.craft.service;
+package com.tool.craft.service.craft;
 
-import com.tool.craft.config.CraftConfig;
+import com.tool.craft.config.craft.CraftConfig;
 import com.tool.craft.enumm.BillType;
-import com.tool.craft.model.DetectedText;
-import com.tool.craft.model.entity.BillDetails;
-import com.tool.craft.model.LabelAmountGeometry;
+import com.tool.craft.entity.BillDetails;
+import com.tool.craft.service.craft.text.Text;
+import com.tool.craft.service.craft.geometry.LabelAmountGeometry;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,12 +14,13 @@ import java.util.Optional;
 
 @Log4j2
 @Service
+@RequiredArgsConstructor
 public class CraftService {
 
-    @Autowired
-    private CraftConfig craftConfig;
+    private final CraftConfig craftConfig;
+    private List<String> labelsToFind;
 
-    public Optional<BillDetails> findBillDetailsIn(List<DetectedText> texts){
+    public Optional<BillDetails> findBillDetailsIn(List<Text> texts){
 
         Optional<BillType> optionalBillType = findBillTypeIn(texts);
         Optional<String> optionalAmount = findAmountIn(texts);
@@ -31,7 +32,7 @@ public class CraftService {
         return Optional.empty();
     }
 
-    public Optional<BillType> findBillTypeIn(List<DetectedText> texts) {
+    public Optional<BillType> findBillTypeIn(List<Text> texts) {
         for (var billsAndRecipients : craftConfig.getBills().entrySet()) {
             for (var recipient : billsAndRecipients.getValue()) {
                 if (findRecipientIn(texts, recipient)) {
@@ -42,25 +43,30 @@ public class CraftService {
         return Optional.empty();
     }
 
-    private boolean findRecipientIn(List<DetectedText> texts, String recipient) {
-        for (DetectedText text : texts) {
+    private boolean findRecipientIn(List<Text> texts, String recipient) {
+        for (Text text : texts) {
             if (text.contains(recipient)) return true;
         }
         return false;
     }
 
-    public Optional<String> findAmountIn(List<DetectedText> texts) {
+    public Optional<String> findAmountIn(List<Text> texts) {
 
         final LabelAmountGeometry labelAmount = new LabelAmountGeometry();
 
         for (var text : texts) {
-            if (!labelAmount.found() && (text.contains("total a pagar") || text.contains("valor"))) {
-                labelAmount.set(text.getBoundingBox().getTop(),
-                        text.getBoundingBox().getLeft());
+            if (!labelAmount.hasLabel()) {
+                craftConfig.getTargets().stream()
+                        .filter(target -> text.contains(target.getLabel()))
+                        .findAny()
+                        .ifPresent(target -> {
+                            labelAmount.setLabel(text.getBoundingBox());
+                            labelAmount.setAmountPosition(target.getAmountPosition());
+                        });
                 continue;
             }
 
-            if (labelAmount.found() && labelAmount.above(text.getBoundingBox())){
+            if (labelAmount.hasLabel() && labelAmount.labelFor(text.getBoundingBox())){
                 String amount = onlyNumberAndDot(text.get());
                 return Optional.of(amount);
             }
