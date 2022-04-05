@@ -1,9 +1,8 @@
-package com.tool.craft.model.entity;
+package com.tool.craft.entity;
 
 import com.tool.craft.enumm.BillType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 

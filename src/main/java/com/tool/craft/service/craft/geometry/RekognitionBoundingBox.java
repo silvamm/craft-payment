@@ -1,6 +1,6 @@
-package com.tool.craft.model;
+package com.tool.craft.service.craft.geometry;
 
-import com.tool.craft.model.interfaces.BoundingBox;
+import com.tool.craft.service.craft.geometry.BoundingBox;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

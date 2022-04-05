@@ -1,4 +1,4 @@
-package com.tool.craft.model.interfaces;
+package com.tool.craft.service.craft.geometry;
 
 public interface BoundingBox {
 

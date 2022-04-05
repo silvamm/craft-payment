@@ -1,7 +1,8 @@
-package com.tool.craft.model;
+package com.tool.craft.service.craft.text;
 
-import com.tool.craft.model.interfaces.BoundingBox;
-import com.tool.craft.model.interfaces.Text;
+import com.tool.craft.service.craft.geometry.RekognitionBoundingBox;
+import com.tool.craft.service.craft.geometry.BoundingBox;
+import com.tool.craft.service.craft.text.Text;
 import lombok.AllArgsConstructor;
 import software.amazon.awssdk.services.rekognition.model.TextDetection;
 
@@ -26,7 +27,9 @@ public class DetectedText implements Text {
         return value.toLowerCase().contains(text.toLowerCase());
     }
 
+    @Override
     public BoundingBox getBoundingBox() {
         return boundingBox;
     }
+
 }
