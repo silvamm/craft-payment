@@ -1,5 +1,7 @@
 package com.tool.craft.model;
 
+import com.tool.craft.model.interfaces.BoundingBox;
+
 public class LabelAmountGeometry {
 
     private float top = 0f;
@@ -14,17 +16,10 @@ public class LabelAmountGeometry {
         return top > 0f && left > 0f;
     }
 
-    public boolean above(float top, float left) {
-        final float differenceTop = top - this.top;
-        final float differenceLeft = left - this.left;
+    public boolean above(BoundingBox boundingBox){
+        final float differenceTop = boundingBox.getTop() - this.top;
+        final float differenceLeft = boundingBox.getLeft() - this.left;
         return differenceTop < 0.02 && differenceLeft < 0.003005;
     }
 
-    public Float getTop() {
-        return top;
-    }
-
-    public Float getLeft() {
-        return left;
-    }
 }

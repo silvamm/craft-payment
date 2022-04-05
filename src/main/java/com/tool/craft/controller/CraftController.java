@@ -1,6 +1,7 @@
 package com.tool.craft.controller;
 
-import com.tool.craft.model.BillDetails;
+import com.tool.craft.model.DetectedText;
+import com.tool.craft.model.entity.BillDetails;
 import com.tool.craft.service.AwsRekognitionService;
 import com.tool.craft.service.AwsS3Service;
 import com.tool.craft.service.CraftService;
@@ -11,10 +12,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import software.amazon.awssdk.services.rekognition.model.TextDetection;
+import software.amazon.awssdk.services.rekognition.model.TextTypes;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
+
+import static java.util.stream.Collectors.*;
 
 @Controller
 public class CraftController {
@@ -51,17 +56,29 @@ public class CraftController {
 
         final InputStream inputStream = file.getInputStream();
 
-        final List<TextDetection> textDetections = awsRekognitionService.detectTextLabelsIn(inputStream);
-        final BillDetails billDetails = craftService.findBillDetails(textDetections);
+        final List<DetectedText> texts = awsRekognitionService
+                .detectTextLabelsIn(inputStream)
+                .stream()
+                .filter(textDetection -> textDetection.type().equals(TextTypes.LINE))
+                .map(DetectedText::new)
+                .collect(toList());
 
-        if(billDetails.filled()){
-            String s3Receipt = awsS3Service.saveInBucket(file);
-            paymentService.save(billDetails, s3Receipt);
-            modelAndView.addObject("message", "Encontrado conta de " + billDetails.getType()
-                    + " no valor de R$ " + billDetails.getAmount());
-        }else {
-            modelAndView.addObject("message",  "Detalhes da conta não encontrado");
-        }
+        final Optional<BillDetails> optionalBillDetails = craftService.findBillDetailsIn(texts);
+
+        optionalBillDetails
+                .ifPresentOrElse(billDetails -> {
+                    String s3Receipt = null;
+                    try {
+                        s3Receipt = awsS3Service.saveInBucket(file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    paymentService.save(billDetails, s3Receipt);
+                    modelAndView.addObject("message", "Encontrado conta de " + billDetails.getType()
+                            + " no valor de R$ " + billDetails.getAmount());
+                },
+                () -> modelAndView.addObject("message", "Detalhes da conta não encontrado"));
+
 
         modelAndView.addObject("payments",  paymentService.findAll());
         return modelAndView;
