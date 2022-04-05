@@ -6,11 +6,14 @@ import com.tool.craft.service.AwsRekognitionService;
 import com.tool.craft.service.AwsS3Service;
 import com.tool.craft.service.CraftService;
 import com.tool.craft.service.PaymentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 import software.amazon.awssdk.services.rekognition.model.TextDetection;
 import software.amazon.awssdk.services.rekognition.model.TextTypes;
 
@@ -22,36 +25,27 @@ import java.util.Optional;
 import static java.util.stream.Collectors.*;
 
 @Controller
+@RequiredArgsConstructor
 public class CraftController {
 
-    @Autowired
-    private CraftService craftService;
-
-    @Autowired
-    private AwsS3Service awsS3Service;
-
-    @Autowired
-    private AwsRekognitionService awsRekognitionService;
-
-    @Autowired
-    private PaymentService paymentService;
+    private final CraftService craftService;
+    private final AwsS3Service awsS3Service;
+    private final AwsRekognitionService awsRekognitionService;
+    private final PaymentService paymentService;
 
     @GetMapping("/")
     public ModelAndView index() {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("index");
+        ModelAndView modelAndView = new ModelAndView("index");
         modelAndView.addObject("payments",  paymentService.findAll());
         return modelAndView;
     }
 
     @PostMapping("/start")
-    public ModelAndView start(@RequestParam("file") MultipartFile file) throws IOException {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("index");
+    public RedirectView start(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) throws IOException {
 
         if (file.isEmpty()) {
-            modelAndView.addObject("message", "Envie um arquivo");
-            return modelAndView;
+            redirectAttributes.addFlashAttribute("message", "Envie um arquivo");
+            return new RedirectView("/");
         }
 
         final InputStream inputStream = file.getInputStream();
@@ -74,26 +68,21 @@ public class CraftController {
                         e.printStackTrace();
                     }
                     paymentService.save(billDetails, s3Receipt);
-                    modelAndView.addObject("message", "Encontrado conta de " + billDetails.getType()
+                    redirectAttributes.addFlashAttribute("message", "Encontrado conta de " + billDetails.getType()
                             + " no valor de R$ " + billDetails.getAmount());
                 },
-                () -> modelAndView.addObject("message", "Detalhes da conta não encontrado"));
+                () -> redirectAttributes.addFlashAttribute("message", "Detalhes da conta não encontrado"));
 
-
-        modelAndView.addObject("payments",  paymentService.findAll());
-        return modelAndView;
+        return new RedirectView("/");
     }
 
     @DeleteMapping("/{payment_id}")
-    public ModelAndView deletePayment(@PathVariable(name = "payment_id") Long paymentId){
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("index");
+    public RedirectView deletePayment(@PathVariable(name = "payment_id") Long paymentId){
         paymentService.findBy(paymentId).ifPresent(p -> {
             awsS3Service.deleteInBucket(p.getReceipt());
             paymentService.delete(paymentId);
         });
-        modelAndView.addObject("payments",  paymentService.findAll());
-        return modelAndView;
+        return new RedirectView("/");
     }
 
 
