@@ -1,13 +1,11 @@
 package com.tool.craft.service;
 
-import com.tool.craft.enumm.BillType;
-import com.tool.craft.model.BillDetails;
-import com.tool.craft.model.Payment;
+import com.tool.craft.model.entity.BillDetails;
+import com.tool.craft.model.entity.Payment;
 import com.tool.craft.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

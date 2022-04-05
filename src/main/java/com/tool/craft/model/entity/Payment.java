@@ -1,4 +1,4 @@
-package com.tool.craft.model;
+package com.tool.craft.model.entity;
 
 import com.tool.craft.enumm.BillType;
 import lombok.Getter;
