@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/
+    url: jdbc:mysql://localhost:3306/db
     username:
     password:
   jpa:
@@ -37,3 +37,12 @@ config:
       - tim sa
     agua:
       - compesa
+  targets:
+    -
+      label: "valor a pagar"
+      amountPosition: "down"
+    -
+      label: "valor"
+      amountPosition: "down"
+
+
