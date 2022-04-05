@@ -1,5 +1,8 @@
-package com.tool.craft.service;
+package com.tool.craft.service.ocr.impl;
 
+import com.tool.craft.service.craft.text.DetectedText;
+import com.tool.craft.service.craft.text.Text;
+import com.tool.craft.service.ocr.TextDetectionService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.SdkBytes;
@@ -11,11 +14,21 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.stream.Collectors.*;
+
 @Log4j2
 @Service
-public class AwsRekognitionService {
+public class AwsRekognitionService implements TextDetectionService {
 
-    public List<TextDetection> detectTextLabelsIn(InputStream inputStream) {
+    @Override
+    public List<Text> findTextsIn(InputStream inputStream) {
+        List<TextDetection> textDetections = detectTextLabelsIn(inputStream);
+        return textDetections.stream()
+                .filter(textDetection -> textDetection.type().equals(TextTypes.LINE))
+                .map(DetectedText::new).collect(toList());
+    }
+
+    private List<TextDetection> detectTextLabelsIn(InputStream inputStream) {
 
         try {
             final RekognitionClient rekognitionClient = RekognitionClient.builder()
