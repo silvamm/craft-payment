@@ -19,7 +19,4 @@ public class CraftConfig {
     private Map<BillType, List<String>> bills;
     private List<Target> targets;
 
-    public List<String> labelsToFind(){
-        return targets.stream().map(Target::getLabel).collect(toList());
-    }
 }
