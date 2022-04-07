@@ -1,11 +1,11 @@
 package com.tool.craft.controller;
 
 import com.tool.craft.entity.BillDetails;
-import com.tool.craft.service.craft.text.Text;
 import com.tool.craft.service.craft.CraftService;
+import com.tool.craft.service.craft.text.Text;
+import com.tool.craft.service.ocr.TextDetectionService;
 import com.tool.craft.service.payment.PaymentService;
 import com.tool.craft.service.storage.StorageService;
-import com.tool.craft.service.ocr.TextDetectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -72,7 +72,7 @@ public class CraftController {
         return new RedirectView("/");
     }
 
-    @DeleteMapping("/{payment_id}")
+    @DeleteMapping("/{payment_id:\\d+}")
     public RedirectView deletePayment(@PathVariable(name = "payment_id") Long paymentId,
                                       RedirectAttributes redirectAttributes){
         paymentService.findBy(paymentId).ifPresent(payment -> {
