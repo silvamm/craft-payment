@@ -6,8 +6,8 @@ import software.amazon.awssdk.services.textract.model.Block;
 
 public class TextractText implements Text {
 
-    private String text;
-    private BoundingBox boundingBox;
+    private final String text;
+    private final BoundingBox boundingBox;
 
     public TextractText(Block block) {
         this.text = block.text();
