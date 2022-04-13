@@ -1,7 +1,6 @@
-package com.tool.craft.service.ocr.impl;
+package com.tool.craft.service.ocr.impl.aws.rekognition;
 
-import com.tool.craft.service.craft.text.DetectedText;
-import com.tool.craft.service.craft.text.Text;
+import com.tool.craft.service.ocr.Text;
 import com.tool.craft.service.ocr.TextDetectionService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,7 @@ public class AwsRekognitionService implements TextDetectionService {
         List<TextDetection> textDetections = detectTextLabelsIn(inputStream);
         return textDetections.stream()
                 .filter(textDetection -> textDetection.type().equals(TextTypes.LINE))
-                .map(DetectedText::new).collect(toList());
+                .map(RekognitionText::new).collect(toList());
     }
 
     private List<TextDetection> detectTextLabelsIn(InputStream inputStream) {

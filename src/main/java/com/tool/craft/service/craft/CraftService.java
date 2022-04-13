@@ -3,8 +3,11 @@ package com.tool.craft.service.craft;
 import com.tool.craft.config.craft.CraftConfig;
 import com.tool.craft.enumm.BillType;
 import com.tool.craft.entity.BillDetails;
-import com.tool.craft.service.craft.text.Text;
+import com.tool.craft.service.ocr.Text;
 import com.tool.craft.service.craft.geometry.LabelAmountGeometry;
+import com.tool.craft.service.ocr.KeyValuePairs;
+import com.tool.craft.service.ocr.TextsAndKeyValuePairs;
+import com.tool.craft.util.MoneyUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -18,17 +21,30 @@ import java.util.Optional;
 public class CraftService {
 
     private final CraftConfig craftConfig;
-    private List<String> labelsToFind;
-
-    public Optional<BillDetails> findBillDetailsIn(List<Text> texts){
-
-        Optional<BillType> optionalBillType = findBillTypeIn(texts);
-        Optional<String> optionalAmount = findAmountIn(texts);
+    
+    public Optional<BillDetails> findBillDetailsIn(TextsAndKeyValuePairs textsAndKeyValuePairs){
+        log.info("Iniciando busca dos detalhes da conta");
+        Optional<BillType> optionalBillType = findBillTypeIn(textsAndKeyValuePairs.getTexts());
+        Optional<String> optionalAmount = findAmountIn(textsAndKeyValuePairs.getKeyValuePairs());
 
         if(optionalBillType.isPresent() && optionalAmount.isPresent()){
+            log.info("Detalhes da conta encontrado");
             return Optional.of(new BillDetails(optionalBillType.get(), optionalAmount.get()));
         }
+        log.info("Detalhes da conta não encontrado");
+        return Optional.empty();
+    }
 
+    public Optional<String> findAmountIn(List<KeyValuePairs> keyValues){
+
+        for(var targetLabel : craftConfig.getLabelTargets()) {
+            for (var keyValue : keyValues) {
+                if (keyValue.containsKey(targetLabel)) {
+                    String amount = MoneyUtils.onlyNumberAndDot(keyValue.getValue());
+                    return Optional.of(amount);
+                }
+            }
+        }
         return Optional.empty();
     }
 
@@ -50,24 +66,22 @@ public class CraftService {
         return false;
     }
 
-    public Optional<String> findAmountIn(List<Text> texts) {
+
+    public Optional<String> forceFindAmountIn(List<Text> texts) {
 
         final LabelAmountGeometry labelAmount = new LabelAmountGeometry();
 
         for (var text : texts) {
             if (!labelAmount.hasLabel()) {
-                craftConfig.getTargets().stream()
-                        .filter(target -> text.contains(target.getLabel()))
+                craftConfig.getLabelTargets().stream()
+                        .filter(text::contains)
                         .findAny()
-                        .ifPresent(target -> {
-                            labelAmount.setLabel(text.getBoundingBox());
-                            labelAmount.setAmountPosition(target.getAmountPosition());
-                        });
+                        .ifPresent(target -> labelAmount.setBoundingBox(text.getBoundingBox()));
                 continue;
             }
-
+            // aqui vou ter que verificar se existe algum valor proximo que seja numerico, com ponto e duas casas decimais
             if (labelAmount.hasLabel() && labelAmount.labelFor(text.getBoundingBox())){
-                String amount = onlyNumberAndDot(text.get());
+                String amount = MoneyUtils.onlyNumberAndDot(text.get());
                 return Optional.of(amount);
             }
         }
@@ -75,10 +89,6 @@ public class CraftService {
         return Optional.empty();
     }
 
-    private String onlyNumberAndDot(String amount){
-        String newAmount = amount.replaceAll("[^0-9,]","");
-        newAmount = newAmount.replaceAll(",", ".");
-        return newAmount;
-    }
+
 
 }

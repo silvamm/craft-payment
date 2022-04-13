@@ -2,8 +2,8 @@ package com.tool.craft.controller;
 
 import com.tool.craft.entity.BillDetails;
 import com.tool.craft.service.craft.CraftService;
-import com.tool.craft.service.craft.text.Text;
-import com.tool.craft.service.ocr.TextDetectionService;
+import com.tool.craft.service.ocr.TextAndKeyValuePairsService;
+import com.tool.craft.service.ocr.TextsAndKeyValuePairs;
 import com.tool.craft.service.payment.PaymentService;
 import com.tool.craft.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +15,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 import java.util.Optional;
 
 import static org.apache.commons.io.FilenameUtils.getExtension;
@@ -27,8 +25,9 @@ public class CraftController {
 
     private final CraftService craftService;
     private final StorageService storageService;
-    private final TextDetectionService textDetectionService;
     private final PaymentService paymentService;
+
+    private final TextAndKeyValuePairsService textDetectionService;
 
     @GetMapping("/")
     public ModelAndView index() {
@@ -46,9 +45,8 @@ public class CraftController {
             return new RedirectView("/");
         }
 
-        final InputStream inputStream = file.getInputStream();
-        final List<Text> texts = textDetectionService.findTextsIn(inputStream);
-        final Optional<BillDetails> optionalBillDetails = craftService.findBillDetailsIn(texts);
+        final TextsAndKeyValuePairs textsAndKeyValuePairs = textDetectionService.findTextsAndKeyValuePairsIn(file.getInputStream());
+        final Optional<BillDetails> optionalBillDetails = craftService.findBillDetailsIn(textsAndKeyValuePairs);
 
         optionalBillDetails
                 .ifPresentOrElse(billDetails -> {

@@ -1,4 +1,4 @@
-package com.tool.craft.service.craft.geometry;
+package com.tool.craft.service.ocr.impl.aws.rekognition;
 
 import com.tool.craft.service.craft.geometry.BoundingBox;
 import lombok.AllArgsConstructor;

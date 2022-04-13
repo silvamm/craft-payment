@@ -1,26 +1,21 @@
 package com.tool.craft.service.craft.geometry;
 
-import com.tool.craft.service.craft.geometry.position.AmountPosition;
+import com.tool.craft.service.craft.geometry.position.DownPosition;
 
 public class LabelAmountGeometry {
 
-    private BoundingBox label;
-    private AmountPosition amountPosition;
-
-    public void setAmountPosition(AmountPosition amountPosition) {
-        this.amountPosition = amountPosition;
-    }
+    private BoundingBox boundingBox;
 
     public boolean labelFor(BoundingBox boundingBox){
-        return amountPosition.getStrategy().match(boundingBox, this.label);
+        return new DownPosition().match(boundingBox, this.boundingBox);
     }
 
-    public void setLabel(BoundingBox label){
-        this.label = label;
+    public void setBoundingBox(BoundingBox boundingBox){
+        this.boundingBox = boundingBox;
     }
 
     public boolean hasLabel() {
-        return label != null;
+        return boundingBox != null;
     }
 
 }

@@ -1,4 +1,4 @@
-package com.tool.craft.service.craft.text;
+package com.tool.craft.service.ocr;
 
 import com.tool.craft.service.craft.geometry.BoundingBox;
 
