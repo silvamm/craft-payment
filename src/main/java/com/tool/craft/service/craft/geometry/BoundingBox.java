@@ -4,4 +4,7 @@ public interface BoundingBox {
 
     Float getTop();
     Float getLeft();
+    Float getHeight();
+    Float getWidth();
+
 }

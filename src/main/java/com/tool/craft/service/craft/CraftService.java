@@ -39,8 +39,8 @@ public class CraftService {
 
         for(var targetLabel : craftConfig.getLabelTargets()) {
             for (var keyValue : keyValues) {
-                if (keyValue.containsKey(targetLabel)) {
-                    String amount = MoneyUtils.onlyNumberAndDot(keyValue.getValue());
+                if (keyValue.getKey().contains(targetLabel)) {
+                    String amount = MoneyUtils.onlyNumberAndDot(keyValue.getValue().get());
                     return Optional.of(amount);
                 }
             }

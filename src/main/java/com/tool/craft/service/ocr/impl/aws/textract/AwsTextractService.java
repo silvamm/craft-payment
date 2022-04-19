@@ -21,7 +21,7 @@ public class AwsTextractService implements TextAndKeyValuePairsService {
     @Override
     public TextsAndKeyValuePairs findTextsAndKeyValuePairsIn(InputStream inputStream) {
         try {
-            log.info("Iniciando processo de OCR");
+            log.info("Iniciando processo de OCR - Via Aws Textract");
             TextractClient textractClient = TextractClient.builder().region(Region.US_EAST_1).build();
             SdkBytes sourceBytes = SdkBytes.fromInputStream(inputStream);
 
@@ -34,71 +34,75 @@ public class AwsTextractService implements TextAndKeyValuePairsService {
                     .featureTypes(FeatureType.FORMS)
                     .build();
 
-            log.info("Abrindo conexão com a AWS");
+            log.info("Enviando arquivo para Aws");
             AnalyzeDocumentResponse analyzeDocumentResponse = textractClient.analyzeDocument(analyzeDocumentRequest);
-            log.info("Recebendo transcrição da AWS");
+            log.info("Recebendo transcrição da Aws");
 
             List<Block> blocks = analyzeDocumentResponse.blocks();
 
-            Map<String, Block> blockMap = blocks.stream().collect(toMap(Block::id, Function.identity()));
+            List<Text> lines = onlyLines(analyzeDocumentResponse);
 
-            Map<String, Block> keyMap = blocks.stream()
-                    .filter(d -> d.blockType().equals(BlockType.KEY_VALUE_SET) && d.entityTypes().contains(EntityType.KEY))
-                    .collect(toMap(Block::id, Function.identity()));
-
-            Map<String, Block> valueMap = blocks.stream()
-                    .filter(d -> d.blockType().equals(BlockType.KEY_VALUE_SET) && d.entityTypes().contains(EntityType.VALUE))
-                    .collect(toMap(Block::id, Function.identity()));
-
-            List<KeyValuePairs> keyValuePairs = createKeyValuePairs(keyMap, valueMap, blockMap)
-                    .entrySet()
-                    .stream().map(e -> new TextractKeyValuePairs(e.getKey(), e.getValue()))
-                    .collect(toList());
-
-            List<Text> onlyLines = analyzeDocumentResponse
-                    .blocks()
+            List<KeyValuePairs> keyValuePairs = createKeyValuePairs(blocks, lines)
                     .stream()
-                    .filter(b -> b.blockType().equals(BlockType.LINE))
-                    .map(TextractText::new)
+                    .map(e -> new TextractKeyValuePairs(e.getKey(), e.getValue()))
                     .collect(toList());
 
-            return new TextractTextsAndKeyValuePairs(onlyLines,keyValuePairs);
+            return new TextractTextsAndKeyValuePairs(lines, keyValuePairs);
 
         } catch (TextractException e) {
-            System.err.println(e.getMessage());
+            log.error(e.getMessage());
         }
+
         return new TextractTextsAndKeyValuePairs();
     }
 
-
-    public Optional<Block>findValueBlock(Block keyBlock, Map<String, Block> valueMap) {
-        for (Relationship relationship : keyBlock.relationships()) {
-            if (relationship.type().equals(RelationshipType.VALUE)) {
-                for (String id : relationship.ids()) {
-                    return Optional.ofNullable(valueMap.get(id));
-                }
-            }
-        }
-        return Optional.empty();
+    private List<Text> onlyLines(AnalyzeDocumentResponse analyzeDocumentResponse) {
+        return analyzeDocumentResponse
+                .blocks()
+                .stream()
+                .filter(b -> b.blockType().equals(BlockType.LINE))
+                .map(TextractText::new)
+                .collect(toList());
     }
 
-    public Map<String, String> createKeyValuePairs(Map<String, Block> keyMap, Map<String, Block> valueMap, Map<String, Block> blockMap) {
+    public List<KeyValuePairs> createKeyValuePairs(List<Block> blocks,
+                                                   List<Text> lines) {
 
-        Map<String, String> keyValueRelationShip = new HashMap<>();
+        Map<String, Block> blockMap = blocks.stream().collect(toMap(Block::id, Function.identity()));
+
+        Map<String, Block> keyMap = blocks.stream()
+                .filter(this::isKey)
+                .collect(toMap(Block::id, Function.identity()));
+
+        Map<String, Block> valueMap = blocks.stream()
+                .filter(this::isValue)
+                .collect(toMap(Block::id, Function.identity()));
+
+        List<KeyValuePairs> keyValuePairs = new ArrayList<>();
 
         for (Map.Entry<String, Block> entry : keyMap.entrySet()) {
             findValueBlock(entry.getValue(), valueMap)
                 .ifPresent(valueBlock ->{
-                    String key = getText(entry.getValue(), blockMap);
-                    String value = getText(valueBlock, blockMap);
-                    keyValueRelationShip.put(key, value);
+                    String key = buildText(entry.getValue(), blockMap);
+                    String value = buildText(valueBlock, blockMap);
+                    Text keyText = findTextIn(lines, key).orElseGet(() -> new TextractText(key));
+                    Text valueText = findTextIn(lines, value).orElseGet(() -> new TextractText(value));
+                    keyValuePairs.add(new TextractKeyValuePairs(keyText, valueText));
                 });
         }
 
-        return keyValueRelationShip;
+        return keyValuePairs;
     }
 
-    public String getText(Block block, Map<String, Block> blockMap) {
+    private boolean isValue(Block block) {
+        return block.blockType().equals(BlockType.KEY_VALUE_SET) && block.entityTypes().contains(EntityType.VALUE);
+    }
+
+    private boolean isKey(Block block) {
+        return block.blockType().equals(BlockType.KEY_VALUE_SET) && block.entityTypes().contains(EntityType.KEY);
+    }
+
+    public String buildText(Block block, Map<String, Block> blockMap) {
         StringBuilder stringBuilder = new StringBuilder();
         for (Relationship relationship : block.relationships()) {
             if (relationship.type().equals(RelationshipType.CHILD)) {
@@ -115,6 +119,23 @@ public class AwsTextractService implements TextAndKeyValuePairsService {
             }
         }
         return stringBuilder.toString();
+    }
+
+    public Optional<Block> findValueBlock(Block keyBlock, Map<String, Block> valueMap) {
+        for (Relationship relationship : keyBlock.relationships()) {
+            if (relationship.type().equals(RelationshipType.VALUE)) {
+                for (String id : relationship.ids()) {
+                    return Optional.ofNullable(valueMap.get(id));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Text> findTextIn(List<Text> onlyLines, String text){
+        return onlyLines.stream()
+                .filter(line -> line.contains(text))
+                .findFirst();
     }
 
 }

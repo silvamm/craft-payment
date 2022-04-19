@@ -10,9 +10,13 @@ public class RekognitionBoundingBox implements BoundingBox {
 
     private Float top;
     private Float left;
+    private Float height;
+    private Float width;
 
     public RekognitionBoundingBox(software.amazon.awssdk.services.rekognition.model.BoundingBox boundingBoxRekognition){
         this.top = boundingBoxRekognition.top();
         this.left = boundingBoxRekognition.left();
+        this.height = boundingBoxRekognition.height();
+        this.width = boundingBoxRekognition.left();
     }
 }
