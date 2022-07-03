@@ -1,4 +1,4 @@
-package com.tool.craft.config.craft;
+package com.tool.craft.config;
 
 import com.tool.craft.enumm.BillType;
 import lombok.Data;
