@@ -1,8 +1,10 @@
 package com.tool.craft.service.storage;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public interface StorageService {
 
-    String save(byte[] file, Long size, String extension);
+    String save(MultipartFile file);
 
-    void delete(String fileNameWithExtension);
+    void delete(String key);
 }

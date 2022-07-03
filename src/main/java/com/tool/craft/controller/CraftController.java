@@ -51,14 +51,8 @@ public class CraftController {
         optionalBillDetails
                 .ifPresentOrElse(billDetails -> {
                     String receipt = null;
-                    try {
-                        receipt = storageService.save(file.getBytes(),
-                                file.getSize(),
-                                getExtension(file.getOriginalFilename()));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    paymentService.save(billDetails, receipt);
+                            receipt = storageService.save(file);
+                            paymentService.save(billDetails, receipt);
 
                     redirectAttributes.addFlashAttribute("message",
                             String.format("Encontrado conta de %s no valor de R$ %s",

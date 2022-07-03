@@ -1,44 +1,54 @@
 package com.tool.craft.service.storage.impl;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.tool.craft.service.storage.StorageService;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-
-import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import static java.util.UUID.randomUUID;
+import static org.apache.commons.io.FilenameUtils.getExtension;
 
 @Log4j2
 @Service
 public class AwsS3Service implements StorageService {
 
+    @Autowired
+    private AmazonS3 amazonS3;
+
+    @Value("${cloud.aws.s3.bucket.name}")
+    private String bucketName;
+
     @Override
-    public String save(byte[] bytes, Long size, String extension) {
-        final S3Client s3Client = S3Client.builder()
-                .region(Region.US_EAST_1)
+    public String save(MultipartFile file) {
+
+        TransferManager transferManager = TransferManagerBuilder
+                .standard()
+                .withS3Client(amazonS3)
                 .build();
 
-        String key = UUID.randomUUID() + "." + extension;
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType(file.getContentType());
+        objectMetadata.setContentLength(file.getSize());
 
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket("craft-payment")
-                .key(key)
-                .contentLength(size)
-                .build();
+        String key = randomUUID() + "." + getExtension(file.getOriginalFilename());
+        try {
+            transferManager.upload(bucketName, key, file.getInputStream(), objectMetadata);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(bytes));
         return key;
     }
 
     @Override
-    public void delete(String fileNameWithExtension) {
-        final S3Client s3Client = S3Client.builder()
-                .region(Region.US_EAST_1)
-                .build();
-
-        s3Client.deleteObject(DeleteObjectRequest.builder().bucket("craft-payment").key(fileNameWithExtension).build());
+    public void delete(String key) {
+        amazonS3.deleteObject(new DeleteObjectRequest(bucketName, key));
     }
 }

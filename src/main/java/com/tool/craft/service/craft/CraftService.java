@@ -1,6 +1,6 @@
 package com.tool.craft.service.craft;
 
-import com.tool.craft.config.craft.CraftConfig;
+import com.tool.craft.config.CraftConfig;
 import com.tool.craft.enumm.BillType;
 import com.tool.craft.entity.BillDetails;
 import com.tool.craft.service.ocr.Text;
