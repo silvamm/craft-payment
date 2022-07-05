@@ -2,9 +2,9 @@ package com.tool.craft.service.ocr;
 
 import java.util.List;
 
-public interface TextsAndKeyValuePairs {
+public interface AnalysedDocument {
 
     List<Text> getTexts();
-    List<KeyValuePairs> getKeyValuePairs();
+    List<LabelAndInputValue> getLabelAndInputValues();
 
 }
