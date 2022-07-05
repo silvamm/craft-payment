@@ -16,10 +16,10 @@ import static java.util.stream.Collectors.*;
 
 @Log4j2
 @Service
-public class AwsTextractService implements TextAndKeyValuePairsService {
+public class AwsTextractService implements AnalyzeDocumentService {
 
     @Override
-    public TextsAndKeyValuePairs findTextsAndKeyValuePairsIn(InputStream inputStream) {
+    public AnalysedDocument analyseDocumentoFrom(InputStream inputStream) {
         try {
             log.info("Iniciando processo de OCR - Via Aws Textract");
             TextractClient textractClient = TextractClient.builder().region(Region.US_EAST_1).build();
@@ -42,9 +42,9 @@ public class AwsTextractService implements TextAndKeyValuePairsService {
 
             List<Text> lines = onlyLines(analyzeDocumentResponse);
 
-            List<KeyValuePairs> keyValuePairs = createKeyValuePairs(blocks, lines)
+            List<LabelAndInputValue> keyValuePairs = createKeyValuePairs(blocks, lines)
                     .stream()
-                    .map(e -> new TextractKeyValuePairs(e.getKey(), e.getValue()))
+                    .map(e -> new TextractLabelAndInputValue(e.getLabel(), e.getInputValue()))
                     .collect(toList());
 
             return new TextractTextsAndKeyValuePairs(lines, keyValuePairs);
@@ -65,8 +65,8 @@ public class AwsTextractService implements TextAndKeyValuePairsService {
                 .collect(toList());
     }
 
-    public List<KeyValuePairs> createKeyValuePairs(List<Block> blocks,
-                                                   List<Text> lines) {
+    public List<LabelAndInputValue> createKeyValuePairs(List<Block> blocks,
+                                                        List<Text> lines) {
 
         Map<String, Block> blockMap = blocks.stream().collect(toMap(Block::id, Function.identity()));
 
@@ -78,7 +78,7 @@ public class AwsTextractService implements TextAndKeyValuePairsService {
                 .filter(this::isValue)
                 .collect(toMap(Block::id, Function.identity()));
 
-        List<KeyValuePairs> keyValuePairs = new ArrayList<>();
+        List<LabelAndInputValue> keyValuePairs = new ArrayList<>();
 
         for (Map.Entry<String, Block> entry : keyMap.entrySet()) {
             findValueBlock(entry.getValue(), valueMap)
@@ -87,7 +87,7 @@ public class AwsTextractService implements TextAndKeyValuePairsService {
                     String value = buildText(valueBlock, blockMap);
                     Text keyText = findTextIn(lines, key).orElseGet(() -> new TextractText(key));
                     Text valueText = findTextIn(lines, value).orElseGet(() -> new TextractText(value));
-                    keyValuePairs.add(new TextractKeyValuePairs(keyText, valueText));
+                    keyValuePairs.add(new TextractLabelAndInputValue(keyText, valueText));
                 });
         }
 
