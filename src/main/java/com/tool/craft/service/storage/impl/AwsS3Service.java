@@ -2,7 +2,9 @@ package com.tool.craft.service.storage.impl;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.tool.craft.service.storage.StorageService;
@@ -12,6 +14,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.io.InputStream;
+
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
@@ -25,6 +29,10 @@ public class AwsS3Service implements StorageService {
     @Value("${cloud.aws.s3.bucket.name}")
     private String bucketName;
 
+    public InputStream get(String key){
+        S3Object object = amazonS3.getObject(new GetObjectRequest(bucketName, key));
+        return object.getObjectContent().getDelegateStream();
+    }
     @Override
     public String save(MultipartFile file) {
 
