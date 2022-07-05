@@ -3,10 +3,10 @@ package com.tool.craft.service.craft;
 import com.tool.craft.config.CraftConfig;
 import com.tool.craft.enumm.BillType;
 import com.tool.craft.entity.BillDetails;
-import com.tool.craft.service.ocr.Text;
 import com.tool.craft.service.craft.geometry.LabelAmountGeometry;
-import com.tool.craft.service.ocr.KeyValuePairs;
-import com.tool.craft.service.ocr.TextsAndKeyValuePairs;
+import com.tool.craft.service.ocr.LabelAndInputValue;
+import com.tool.craft.service.ocr.Text;
+import com.tool.craft.service.ocr.AnalysedDocument;
 import com.tool.craft.util.MoneyUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -22,10 +22,10 @@ public class CraftService {
 
     private final CraftConfig craftConfig;
     
-    public Optional<BillDetails> findBillDetailsIn(TextsAndKeyValuePairs textsAndKeyValuePairs){
+    public Optional<BillDetails> findBillDetailsIn(AnalysedDocument textsAndKeyValuePairs){
         log.info("Iniciando busca dos detalhes da conta");
         Optional<BillType> optionalBillType = findBillTypeIn(textsAndKeyValuePairs.getTexts());
-        Optional<String> optionalAmount = findAmountIn(textsAndKeyValuePairs.getKeyValuePairs());
+        Optional<String> optionalAmount = findAmountIn(textsAndKeyValuePairs.getLabelAndInputValues());
 
         if(optionalBillType.isPresent() && optionalAmount.isPresent()){
             log.info("Detalhes da conta encontrado");
@@ -35,12 +35,12 @@ public class CraftService {
         return Optional.empty();
     }
 
-    public Optional<String> findAmountIn(List<KeyValuePairs> keyValues){
+    public Optional<String> findAmountIn(List<LabelAndInputValue> keyValues){
 
         for(var targetLabel : craftConfig.getLabelTargets()) {
             for (var keyValue : keyValues) {
-                if (keyValue.getKey().contains(targetLabel)) {
-                    String amount = MoneyUtils.onlyNumberAndDot(keyValue.getValue().get());
+                if (keyValue.getLabel().contains(targetLabel)) {
+                    String amount = MoneyUtils.onlyNumberAndDot(keyValue.getInputValue().get());
                     return Optional.of(amount);
                 }
             }
