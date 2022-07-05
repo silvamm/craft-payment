@@ -6,7 +6,10 @@ public interface Text {
 
     String get();
 
-    boolean contains(String text);
+    default boolean contains(String text){
+        if (get() == null || text == null) return false;
+        return get().toLowerCase().trim().contains(text.toLowerCase().trim());
+    }
 
     BoundingBox getBoundingBox();
 }

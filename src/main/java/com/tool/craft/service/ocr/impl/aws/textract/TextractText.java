@@ -28,11 +28,6 @@ public class TextractText implements Text {
     }
 
     @Override
-    public boolean contains(String text) {
-        return this.value.toLowerCase().trim().contains(text.toLowerCase().trim());
-    }
-
-    @Override
     public BoundingBox getBoundingBox() {
         return boundingBox;
     }
