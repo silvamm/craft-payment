@@ -41,8 +41,11 @@ spring:
 
 app:
   aws:
-    lambda:
-      url:
+    ec2:
+      database:
+        id:
+      lambda:
+        url:
 
 config:
   bills:
