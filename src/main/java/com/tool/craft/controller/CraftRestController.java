@@ -9,7 +9,7 @@ import com.tool.craft.service.payment.PaymentService;
 import com.tool.craft.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -18,6 +18,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class CraftRestController {
 
     private final CraftService craftService;
@@ -25,11 +26,13 @@ public class CraftRestController {
     private final PaymentService paymentService;
     private final AnalyzeDocumentService textDetectionService;
 
+    @GetMapping("/payments")
     public ResponseEntity<List<Payment>> getAllPayments(){
         return ResponseEntity.ok(paymentService.findAll());
     }
 
-    public ResponseEntity<BillDetails> start(MultipartFile file) throws IOException {
+    @PostMapping("/craft/start")
+    public ResponseEntity<BillDetails> start(@RequestParam(value = "file") MultipartFile file) throws IOException {
 
         if (file.isEmpty()) return ResponseEntity.badRequest().build();
 
@@ -44,8 +47,9 @@ public class CraftRestController {
 
         return ResponseEntity.of(optionalBillDetails);
     }
-
-    public ResponseEntity<Void> delete(Long paymentId) {
+		
+    @DeleteMapping("/payments/{payment_id:\\d+}")
+    public ResponseEntity<Void> delete(@PathVariable(name = "payment_id") Long paymentId) {
 
         Optional<Payment> optionalPayment = paymentService.findBy(paymentId);
         if (optionalPayment.isEmpty())
