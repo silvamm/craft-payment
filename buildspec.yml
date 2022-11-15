@@ -16,4 +16,4 @@ phases:
       - echo Build completed on `date`
 artifacts:
   files:
-    - target/*.jar
+    - target/craft-0.0.3-SNAPSHOT.jar
