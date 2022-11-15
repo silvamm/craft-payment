@@ -15,13 +15,13 @@ import javax.sql.DataSource;
 @Configuration
 public class DataSourceConfig {
 
-    @Value("${spring.datasource.username}")
-    private String user;
-    @Value("${spring.datasource.password}")
+    @Value(value = "${username-db}")
+    private String username;
+    @Value("${password-db}")
     private String password;
-    @Value("${app.aws.ec2.lambda.url}")
+    @Value("${lambda-url}")
     private String awsLambdaUrl;
-    @Value("${app.aws.ec2.database.id}")
+    @Value("${database-id}")
     private String databaseInstanceId;
 
     @Bean
@@ -42,7 +42,7 @@ public class DataSourceConfig {
 
         MysqlDataSource mysqlDataSource = new MysqlDataSource();
         mysqlDataSource.setURL("jdbc:mysql://"+ec2Info.getPublicDnsName()+"/craft_db");
-        mysqlDataSource.setUser(user);
+        mysqlDataSource.setUser(username);
         mysqlDataSource.setPassword(password);
         return mysqlDataSource;
     }
