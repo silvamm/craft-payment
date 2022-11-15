@@ -8,6 +8,7 @@ import com.tool.craft.service.ocr.AnalyzeDocumentService;
 import com.tool.craft.service.payment.PaymentService;
 import com.tool.craft.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -25,6 +28,11 @@ public class CraftRestController {
     private final StorageService storageService;
     private final PaymentService paymentService;
     private final AnalyzeDocumentService textDetectionService;
+
+    @GetMapping("/live")
+    public void live(){
+        log.info("OK");
+    }
 
     @GetMapping("/payments")
     public ResponseEntity<List<Payment>> getAllPayments(){
