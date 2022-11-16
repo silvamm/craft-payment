@@ -1,7 +1,7 @@
 version: 0.0
 os: linux
 files:
-  - source: target/craft-0.0.3-SNAPSHOT.jar
+  - source: target/*.jar
     destination: /home/ec2-user/
 file_exists_behavior: OVERWRITE
 hooks:
