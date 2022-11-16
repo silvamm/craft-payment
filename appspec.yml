@@ -2,6 +2,6 @@ version: 0.0
 os: linux
 hooks:
   ApplicationStart:
-    - location: ./craft-service-restart.sh
+    - location: ./scripts/craft-service-restart.sh
       timeout: 300
 
