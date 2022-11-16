@@ -6,5 +6,5 @@ files:
 file_exists_behavior: OVERWRITE
 hooks:
   ApplicationStart:
-      - location: scripts/craft-service-restart.sh
+      - location: scripts/craft-app-service-restart.sh
         timeout: 3600
