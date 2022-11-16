@@ -9,6 +9,7 @@ import com.tool.craft.service.payment.PaymentService;
 import com.tool.craft.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,10 +32,17 @@ public class CraftRestController {
     private final PaymentService paymentService;
     private final AnalyzeDocumentService textDetectionService;
 
+    @Value(value="${app.version}")
+    private String appVersion;
+    @Value(value="${app.build.timestamp}")
+    private String appBuildTimestamp;
+
     @GetMapping("/live")
     public Map<String, String> live(){
         HashMap<String, String> map = new HashMap<>();
         map.put("status", "OK");
+        map.put("version", appVersion);
+        map.put("timestamp", appBuildTimestamp);
         return map;
     }
 

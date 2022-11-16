@@ -1,3 +1,7 @@
+app:
+  version: @project.version@
+  build:
+    timestamp: @timestamp@
 cloud:
   aws:
     region:
