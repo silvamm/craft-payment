@@ -2,8 +2,6 @@ version: 0.0
 os: linux
 hooks:
   ApplicationStart:
-    - location: ./craft-service-start.sh
+    - location: ./craft-service-restart.sh
       timeout: 300
-  ApplicationStop:
-    - location: ./craft-service-stop.sh
-      timeout: 300
+
