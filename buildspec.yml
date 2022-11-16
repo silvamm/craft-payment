@@ -16,4 +16,5 @@ phases:
       - echo Build completed on `date`
 artifacts:
   files:
+    - appspec.yml
     - target/craft-0.0.3-SNAPSHOT.jar
