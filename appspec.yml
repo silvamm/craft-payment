@@ -1,2 +1,5 @@
 version: 0.0
 os: linux
+files:
+  - source: target/craft-0.0.3-SNAPSHOT.jar
+    destination: /home/ec2-user/
