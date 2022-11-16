@@ -5,11 +5,31 @@
     <title>Craft</title>
 </head>
 <body>
-    <h1>Welcome</h1>
-    <p th:text="${message}" th:if="${message ne null}"></p>
-    <form action="#" th:action="@{/start}" method="post" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <button type="submit">Register</button>
-    </form>
+<h1>Welcome</h1>
+<p th:text="${message}" th:if="${message ne null}"></p>
+<form action="#" th:action="@{/start}" method="post" enctype="multipart/form-data">
+    <input type="file" name="file">
+    <button type="submit">Register</button>
+</form>
+<table border="1" style="margin-top: 10px;">
+    <tr>
+        <th>Date</th>
+        <th>Amount</th>
+        <th>Type</th>
+        <th>Action</th>
+    </tr>
+    <tr th:each="payment : ${payments}">
+        <td th:text="${payment.date}"/>
+        <td th:text="${payment.amount}"/>
+        <td th:text="${payment.billType}"/>
+        <td>
+            <form th:action="@{/{payment_id}(payment_id=${payment.id})}" th:method="delete">
+                <input type="hidden" name="_method" value="delete"/>
+                <button type="submit" th:onclick="return confirm('Are you sure ?')">Delete</button>
+            </form>
+        </td>
+    </tr>
+</table>
+
 </body>
 </html>

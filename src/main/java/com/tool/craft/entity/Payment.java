@@ -1,10 +1,11 @@
-package com.tool.craft.model;
+package com.tool.craft.entity;
 
 import com.tool.craft.enumm.BillType;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -21,7 +22,7 @@ public class Payment {
     private BillType billType;
     private LocalDateTime date;
     private String description;
-    private String amount;
+    private BigDecimal amount;
     private String receipt;
 
 

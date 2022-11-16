@@ -7,5 +7,6 @@ public enum BillType {
     ALUGUEL,
     CELULAR,
     CONDOMINIO,
-    INTERNET;
+    INTERNET,
+    ALIMENTACAO;
 }

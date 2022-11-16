@@ -12,6 +12,8 @@ import java.util.Map;
 @Component
 @ConfigurationProperties(prefix = "config")
 public class CraftConfig {
+
     private Map<BillType, List<String>> bills;
+    private List<String> labelTargets;
 
 }
