@@ -17,5 +17,5 @@ phases:
 artifacts:
   files:
     - appspec.yml
-    - target/craft-0.0.3-SNAPSHOT.jar
+    - target/*.jar
     - scripts/*
