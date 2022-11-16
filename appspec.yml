@@ -4,4 +4,7 @@ hooks:
   ApplicationStart:
     - location: ./scripts/craft-service-restart.sh
       timeout: 300
+  ApplicationStop:
+    - location: ./scripts/craft-service-stop.sh
+      timeout: 300
 
