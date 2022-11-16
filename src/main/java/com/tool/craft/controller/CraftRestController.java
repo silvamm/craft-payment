@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -30,8 +32,10 @@ public class CraftRestController {
     private final AnalyzeDocumentService textDetectionService;
 
     @GetMapping("/live")
-    public void live(){
-        log.info("OK");
+    public Map<String, String> live(){
+        HashMap<String, String> map = new HashMap<>();
+        map.put("status", "OK");
+        return map;
     }
 
     @GetMapping("/payments")
