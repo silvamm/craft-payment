@@ -6,5 +6,5 @@ files:
 file_exists_behavior: OVERWRITE
 hooks:
   ApplicationStart:
-      - location: /home/ec2-user/craft-service-restart.sh
+      - location: ./home/ec2-user/craft-service-restart.sh
         timeout: 3600
