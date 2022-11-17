@@ -15,14 +15,14 @@ import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
-public class CraftController {
+public class MvcController {
 
-    private final CraftRestController craftRestController;
+    private final PaymentRestController paymentRestController;
 
     @GetMapping("/")
     public ModelAndView index() {
         ModelAndView modelAndView = new ModelAndView("index");
-        modelAndView.addObject("payments", craftRestController.getAllPayments().getBody());
+        modelAndView.addObject("payments", paymentRestController.getAllPayments().getBody());
         return modelAndView;
     }
 
@@ -34,7 +34,7 @@ public class CraftController {
             redirectAttributes.addFlashAttribute("message", "Envie um arquivo");
             return new RedirectView("/");
         }
-        ResponseEntity<BillDetails> billDetailsResponseEntity = craftRestController.start(file);
+        ResponseEntity<BillDetails> billDetailsResponseEntity = paymentRestController.start(file);
         Optional.ofNullable(billDetailsResponseEntity.getBody())
                 .ifPresentOrElse(billDetails ->
                                 redirectAttributes.addFlashAttribute("message",
@@ -51,7 +51,7 @@ public class CraftController {
     public RedirectView deletePayment(@PathVariable(name = "payment_id") Long paymentId,
                                       RedirectAttributes redirectAttributes) {
 
-        ResponseEntity<Void> delete = craftRestController.delete(paymentId);
+        ResponseEntity<Void> delete = paymentRestController.delete(paymentId);
         if(delete.getStatusCode().is2xxSuccessful())
             redirectAttributes.addFlashAttribute("message", "Arquivo excluido com sucesso");
 

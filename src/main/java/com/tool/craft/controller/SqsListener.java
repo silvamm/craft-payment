@@ -3,7 +3,6 @@ package com.tool.craft.controller;
 import com.amazonaws.services.s3.event.S3EventNotification;
 import com.tool.craft.service.storage.StorageService;
 import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
-import io.awspring.cloud.messaging.listener.annotation.SqsListener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mock.web.MockMultipartFile;
@@ -16,12 +15,12 @@ import java.io.InputStream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CraftSqsListener {
+public class SqsListener {
 
     private final StorageService storageService;
-    private final CraftRestController craftRestController;
+    private final PaymentRestController paymentRestController;
 
-    @SqsListener(value = "s3-sqs-craft-payment", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+    @io.awspring.cloud.messaging.listener.annotation.SqsListener(value = "s3-sqs-craft-payment", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
     public void receive(S3EventNotification s3EventNotificationRecord) {
 
         if(recordsEmpty(s3EventNotificationRecord)) return;
@@ -32,7 +31,7 @@ public class CraftSqsListener {
         try {
             String name = s3Entity.getObject().getKey();
             MultipartFile multipartFile = new MockMultipartFile(name, name, null, inputStream);
-            craftRestController.start(multipartFile);
+            paymentRestController.start(multipartFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

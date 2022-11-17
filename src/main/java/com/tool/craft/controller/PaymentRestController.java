@@ -25,7 +25,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
-public class CraftRestController {
+public class PaymentRestController {
 
     private final CraftService craftService;
     private final StorageService storageService;
