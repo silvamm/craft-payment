@@ -32,20 +32,6 @@ public class PaymentRestController {
     private final PaymentService paymentService;
     private final AnalyzeDocumentService textDetectionService;
 
-    @Value(value="${app.version}")
-    private String appVersion;
-    @Value(value="${app.build.timestamp}")
-    private String appBuildTimestamp;
-
-    @GetMapping("/live")
-    public Map<String, String> live(){
-        HashMap<String, String> map = new HashMap<>();
-        map.put("status", "OK");
-        map.put("version", appVersion);
-        map.put("timestamp", appBuildTimestamp);
-        return map;
-    }
-
     @GetMapping("/payments")
     public ResponseEntity<List<Payment>> getAllPayments(){
         return ResponseEntity.ok(paymentService.findAll());
