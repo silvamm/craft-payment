@@ -1,15 +1,30 @@
 package com.tool.craft.service.ocr;
 
-import com.tool.craft.service.craft.geometry.BoundingBox;
 
-public interface Text {
+import lombok.ToString;
+import software.amazon.awssdk.services.textract.model.Block;
 
-    String get();
+@ToString
+public class Text {
 
-    default boolean contains(String text){
+    private final String value;
+
+    public Text(Block block) {
+        this.value = block.text();
+
+    }
+
+    public Text(String value){
+        this.value = value;
+    }
+
+    public boolean contains(String text){
         if (get() == null || text == null) return false;
         return get().toLowerCase().trim().contains(text.toLowerCase().trim());
     }
 
-    BoundingBox getBoundingBox();
+    public String get() {
+        return value;
+    }
+
 }

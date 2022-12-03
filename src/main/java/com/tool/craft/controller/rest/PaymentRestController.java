@@ -3,10 +3,10 @@ package com.tool.craft.controller.rest;
 import com.tool.craft.model.BillDetails;
 import com.tool.craft.model.Payment;
 import com.tool.craft.service.craft.CraftService;
-import com.tool.craft.service.ocr.AnalysedDocument;
-import com.tool.craft.service.ocr.AnalyzeDocumentService;
+import com.tool.craft.service.ocr.AwsTextractService;
+import com.tool.craft.service.ocr.TextsAndKeyValuePairs;
 import com.tool.craft.service.payment.PaymentService;
-import com.tool.craft.service.storage.StorageService;
+import com.tool.craft.service.filestorage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ public class PaymentRestController {
     private final CraftService craftService;
     private final StorageService storageService;
     private final PaymentService paymentService;
-    private final AnalyzeDocumentService textDetectionService;
+    private final AwsTextractService textDetectionService;
 
     @GetMapping("/")
     public ResponseEntity<List<Payment>> getAllPayments(){
@@ -39,7 +39,7 @@ public class PaymentRestController {
 
         if (file.isEmpty()) return ResponseEntity.badRequest().build();
 
-        final AnalysedDocument textsAndKeyValuePairs = textDetectionService.analyseDocumentoFrom(file.getInputStream());
+        final TextsAndKeyValuePairs textsAndKeyValuePairs = textDetectionService.analyseDocumentoFrom(file.getInputStream());
         final Optional<BillDetails> optionalBillDetails = craftService.findBillDetailsIn(textsAndKeyValuePairs);
 
         optionalBillDetails

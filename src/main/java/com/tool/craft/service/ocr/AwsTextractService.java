@@ -1,6 +1,5 @@
-package com.tool.craft.service.ocr.impl.aws.textract;
+package com.tool.craft.service.ocr;
 
-import com.tool.craft.service.ocr.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.SdkBytes;
@@ -14,12 +13,16 @@ import java.util.function.Function;
 
 import static java.util.stream.Collectors.*;
 
+/**
+ * Documentação da aws sobre a utilização do serviço
+ * https://docs.aws.amazon.com/textract/latest/dg/how-it-works-kvp.html
+ */
 @Log4j2
 @Service
-public class AwsTextractService implements AnalyzeDocumentService {
+public class AwsTextractService {
 
-    @Override
-    public AnalysedDocument analyseDocumentoFrom(InputStream inputStream) {
+
+    public TextsAndKeyValuePairs analyseDocumentoFrom(InputStream inputStream) {
         try {
             log.info("Iniciando processo de OCR - Via Aws Textract");
             TextractClient textractClient = TextractClient.builder().region(Region.US_EAST_1).build();
@@ -39,21 +42,16 @@ public class AwsTextractService implements AnalyzeDocumentService {
             log.info("Recebendo transcrição da Aws");
 
             List<Block> blocks = analyzeDocumentResponse.blocks();
-
+            List<LabelAndInputValue> keyValuePairs = createKeyValuePairs(blocks);
             List<Text> lines = onlyLines(analyzeDocumentResponse);
 
-            List<LabelAndInputValue> keyValuePairs = createKeyValuePairs(blocks, lines)
-                    .stream()
-                    .map(e -> new TextractLabelAndInputValue(e.getLabel(), e.getInputValue()))
-                    .collect(toList());
-
-            return new TextractTextsAndKeyValuePairs(lines, keyValuePairs);
+            return new TextsAndKeyValuePairs(lines, keyValuePairs);
 
         } catch (TextractException e) {
             log.error(e.getMessage());
         }
 
-        return new TextractTextsAndKeyValuePairs();
+        return new TextsAndKeyValuePairs();
     }
 
     private List<Text> onlyLines(AnalyzeDocumentResponse analyzeDocumentResponse) {
@@ -61,37 +59,51 @@ public class AwsTextractService implements AnalyzeDocumentService {
                 .blocks()
                 .stream()
                 .filter(b -> b.blockType().equals(BlockType.LINE))
-                .map(TextractText::new)
-                .collect(toList());
+                .map(Text::new)
+                .toList();
     }
 
-    public List<LabelAndInputValue> createKeyValuePairs(List<Block> blocks,
-                                                        List<Text> lines) {
+    public List<LabelAndInputValue> createKeyValuePairs(List<Block> blocks) {
 
+        //mapa com todos os blocos sem distinção de tipo
         Map<String, Block> blockMap = blocks.stream().collect(toMap(Block::id, Function.identity()));
 
+        //mapa somente com os blocos do tipo "chave"
         Map<String, Block> keyMap = blocks.stream()
                 .filter(this::isKey)
                 .collect(toMap(Block::id, Function.identity()));
 
+        //mapa somente com os blocos do tipo "valor"
         Map<String, Block> valueMap = blocks.stream()
                 .filter(this::isValue)
                 .collect(toMap(Block::id, Function.identity()));
 
         List<LabelAndInputValue> keyValuePairs = new ArrayList<>();
 
-        for (Map.Entry<String, Block> entry : keyMap.entrySet()) {
-            findValueBlock(entry.getValue(), valueMap)
-                .ifPresent(valueBlock ->{
-                    String key = buildText(entry.getValue(), blockMap);
-                    String value = buildText(valueBlock, blockMap);
-                    Text keyText = findTextIn(lines, key).orElseGet(() -> new TextractText(key));
-                    Text valueText = findTextIn(lines, value).orElseGet(() -> new TextractText(value));
-                    keyValuePairs.add(new TextractLabelAndInputValue(keyText, valueText));
-                });
+        for (Map.Entry<String, Block> key : keyMap.entrySet()) {
+            //encontramos o bloco "valor" de cada bloco "chave"
+            findValueBlock(key.getValue(), valueMap)
+                    .ifPresent(valueBlock -> {
+                        //encontramos as "palavras" que formam o bloco "chave"
+                        String keyText = buildText(key.getValue(), blockMap);
+                        //encontramos as "palavras" que formam o bloco "valor" da "chave"
+                        String valueText = buildText(valueBlock, blockMap);
+                        keyValuePairs.add(new LabelAndInputValue(keyText, valueText));
+                    });
         }
 
         return keyValuePairs;
+    }
+
+    public Optional<Block> findValueBlock(Block keyBlock, Map<String, Block> valueMap) {
+
+        for (Relationship relationship : keyBlock.relationships()) {
+            if (relationship.type().equals(RelationshipType.VALUE) && relationship.hasIds()) {
+                String id = relationship.ids().get(0);
+                return Optional.ofNullable(valueMap.get(id));
+            }
+        }
+        return Optional.empty();
     }
 
     private boolean isValue(Block block) {
@@ -104,6 +116,7 @@ public class AwsTextractService implements AnalyzeDocumentService {
 
     public String buildText(Block block, Map<String, Block> blockMap) {
         StringBuilder stringBuilder = new StringBuilder();
+
         for (Relationship relationship : block.relationships()) {
             if (relationship.type().equals(RelationshipType.CHILD)) {
                 for (String id : relationship.ids()) {
@@ -112,30 +125,14 @@ public class AwsTextractService implements AnalyzeDocumentService {
                     if (word.blockType().equals(BlockType.WORD))
                         stringBuilder.append(word.text()).append(" ");
 
-                    if (word.blockType().equals(BlockType.SELECTION_ELEMENT))
-                        if (word.selectionStatus().equals(SelectionStatus.SELECTED))
-                            stringBuilder.append("X").append(" ");
+                    if (word.blockType().equals(BlockType.SELECTION_ELEMENT) &&
+                            word.selectionStatus().equals(SelectionStatus.SELECTED))
+                        stringBuilder.append("X").append(" ");
                 }
             }
         }
         return stringBuilder.toString();
     }
 
-    public Optional<Block> findValueBlock(Block keyBlock, Map<String, Block> valueMap) {
-        for (Relationship relationship : keyBlock.relationships()) {
-            if (relationship.type().equals(RelationshipType.VALUE)) {
-                for (String id : relationship.ids()) {
-                    return Optional.ofNullable(valueMap.get(id));
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
-    private Optional<Text> findTextIn(List<Text> onlyLines, String text){
-        return onlyLines.stream()
-                .filter(line -> line.contains(text))
-                .findFirst();
-    }
 
 }
