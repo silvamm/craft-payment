@@ -13,8 +13,8 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/payments")
 public class ListAllPaymentsRestController {
     private final ListAllPaymentsUseCase listAllPaymentsUseCase;
 

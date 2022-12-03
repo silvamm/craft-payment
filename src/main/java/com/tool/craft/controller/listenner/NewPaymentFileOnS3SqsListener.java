@@ -17,7 +17,7 @@ import java.io.InputStream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NewPaymentFileS3SqsListener {
+public class NewPaymentFileOnS3SqsListener {
 
     private final AwsS3Service awsS3Service;
     private final CreatePaymentFromFileRestController createPaymentFromFileRestController;

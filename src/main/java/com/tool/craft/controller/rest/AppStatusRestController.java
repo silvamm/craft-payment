@@ -13,7 +13,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/status")
 public class AppStatusRestController {
 
     @Value(value="${app.version}")
@@ -21,7 +21,7 @@ public class AppStatusRestController {
     @Value(value="${app.build.timestamp}")
     private String appBuildTimestamp;
 
-    @GetMapping("/live")
+    @GetMapping("/")
     public Map<String, String> live(){
         HashMap<String, String> map = new HashMap<>();
         map.put("status", "OK");
