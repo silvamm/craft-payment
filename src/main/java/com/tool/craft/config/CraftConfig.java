@@ -14,6 +14,7 @@ import java.util.Map;
 public class CraftConfig {
 
     private Map<BillType, List<String>> bills;
-    private List<String> labelTargets;
+    private List<String> targetLabels;
+
 
 }

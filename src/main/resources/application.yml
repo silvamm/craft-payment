@@ -60,7 +60,7 @@ config:
     alimentacao:
       - ifood
       - lfood
-  labelTargets:
+  targetLabels:
     - "valor a pagar"
     - "valor"
     - "pix enviado"
