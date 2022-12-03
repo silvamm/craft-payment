@@ -59,7 +59,7 @@ public class AwsTextractService {
                 .blocks()
                 .stream()
                 .filter(b -> b.blockType().equals(BlockType.LINE))
-                .map(Text::new)
+                .map(b -> new Text(b.text()))
                 .toList();
     }
 
