@@ -1,4 +1,4 @@
-package com.tool.craft.service.storage;
+package com.tool.craft.service.filestorage;
 
 import org.springframework.web.multipart.MultipartFile;
 
