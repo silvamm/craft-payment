@@ -1,4 +1,4 @@
-package com.tool.craft.controller;
+package com.tool.craft.controller.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
-public class CraftStatusRestController {
+public class AppStatusRestController {
 
     @Value(value="${app.version}")
     private String appVersion;

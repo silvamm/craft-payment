@@ -1,8 +1,8 @@
 package com.tool.craft.service.payment;
 
-import com.tool.craft.entity.BillDetails;
-import com.tool.craft.entity.Payment;
-import com.tool.craft.repository.payment.PaymentRepository;
+import com.tool.craft.model.BillDetails;
+import com.tool.craft.model.Payment;
+import com.tool.craft.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

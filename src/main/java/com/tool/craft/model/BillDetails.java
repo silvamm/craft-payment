@@ -1,6 +1,6 @@
-package com.tool.craft.entity;
+package com.tool.craft.model;
 
-import com.tool.craft.enumm.BillType;
+import com.tool.craft.model.enumm.BillType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

@@ -1,7 +1,7 @@
-package com.tool.craft.config;
+package com.tool.craft.config.datasource;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-import com.tool.craft.dto.Ec2InfoLambdaDto;
+import com.tool.craft.config.datasource.dto.Ec2InfoLambdaDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

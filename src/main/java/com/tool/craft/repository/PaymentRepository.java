@@ -1,6 +1,6 @@
-package com.tool.craft.repository.payment;
+package com.tool.craft.repository;
 
-import com.tool.craft.entity.Payment;
+import com.tool.craft.model.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {

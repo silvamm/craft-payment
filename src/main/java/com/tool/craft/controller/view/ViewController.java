@@ -1,6 +1,7 @@
-package com.tool.craft.controller;
+package com.tool.craft.controller.view;
 
-import com.tool.craft.entity.BillDetails;
+import com.tool.craft.controller.rest.PaymentRestController;
+import com.tool.craft.model.BillDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,7 +16,7 @@ import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
-public class MvcController {
+public class ViewController {
 
     private final PaymentRestController paymentRestController;
 

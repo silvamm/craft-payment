@@ -1,7 +1,7 @@
-package com.tool.craft.controller;
+package com.tool.craft.controller.rest;
 
-import com.tool.craft.entity.BillDetails;
-import com.tool.craft.entity.Payment;
+import com.tool.craft.model.BillDetails;
+import com.tool.craft.model.Payment;
 import com.tool.craft.service.craft.CraftService;
 import com.tool.craft.service.ocr.AnalysedDocument;
 import com.tool.craft.service.ocr.AnalyzeDocumentService;
@@ -9,22 +9,19 @@ import com.tool.craft.service.payment.PaymentService;
 import com.tool.craft.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/payments")
 public class PaymentRestController {
 
     private final CraftService craftService;
@@ -32,7 +29,7 @@ public class PaymentRestController {
     private final PaymentService paymentService;
     private final AnalyzeDocumentService textDetectionService;
 
-    @GetMapping("/payments")
+    @GetMapping("/")
     public ResponseEntity<List<Payment>> getAllPayments(){
         return ResponseEntity.ok(paymentService.findAll());
     }
@@ -54,7 +51,7 @@ public class PaymentRestController {
         return ResponseEntity.of(optionalBillDetails);
     }
 		
-    @DeleteMapping("/payments/{payment_id:\\d+}")
+    @DeleteMapping("/{payment_id:\\d+}")
     public ResponseEntity<Void> delete(@PathVariable(name = "payment_id") Long paymentId) {
 
         Optional<Payment> optionalPayment = paymentService.findBy(paymentId);

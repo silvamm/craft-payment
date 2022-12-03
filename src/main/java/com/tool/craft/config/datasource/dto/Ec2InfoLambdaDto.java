@@ -1,4 +1,4 @@
-package com.tool.craft.dto;
+package com.tool.craft.config.datasource.dto;
 
 import lombok.Data;
 
