@@ -1,4 +1,4 @@
-package com.tool.craft.model.enumm;
+package com.tool.craft.domain.enumm;
 
 public enum BillType {
     AGUA,

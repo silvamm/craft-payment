@@ -1,6 +1,6 @@
-package com.tool.craft.model;
+package com.tool.craft.domain;
 
-import com.tool.craft.model.enumm.BillType;
+import com.tool.craft.domain.enumm.BillType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,10 +8,11 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+
 @Entity
 @Table(name = "payments")
+@Getter
+@Setter
 public class Payment {
 
     @Id
@@ -24,6 +25,19 @@ public class Payment {
     private String description;
     private BigDecimal amount;
     private String receipt;
+
+    @Deprecated
+    public Payment() {
+    }
+
+    public static Payment newInstance(BillDetails billDetails, String receipt) {
+        Payment payment = new Payment();
+        payment.setDate(LocalDateTime.now());
+        payment.setReceipt(receipt);
+        payment.setBillType(billDetails.getType());
+        payment.setAmount(billDetails.getAmount());
+        return payment;
+    }
 
 
 }

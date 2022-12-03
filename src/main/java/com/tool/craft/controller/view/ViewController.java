@@ -1,7 +1,10 @@
 package com.tool.craft.controller.view;
 
-import com.tool.craft.controller.rest.PaymentRestController;
-import com.tool.craft.model.BillDetails;
+import com.tool.craft.controller.rest.DeletePaymentRestController;
+import com.tool.craft.controller.rest.ListAllPaymentsRestController;
+import com.tool.craft.controller.rest.CreatePaymentFromFileRestController;
+import com.tool.craft.domain.BillDetails;
+import com.tool.craft.domain.Payment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,12 +21,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ViewController {
 
-    private final PaymentRestController paymentRestController;
+    private final CreatePaymentFromFileRestController paymentRestController;
+    private final ListAllPaymentsRestController listAllPaymentsController;
+    private final DeletePaymentRestController deletePaymentRestController;
 
     @GetMapping("/")
     public ModelAndView index() {
         ModelAndView modelAndView = new ModelAndView("index");
-        modelAndView.addObject("payments", paymentRestController.getAllPayments().getBody());
+        modelAndView.addObject("payments", listAllPaymentsController.getAllPayments().getBody());
         return modelAndView;
     }
 
@@ -35,12 +40,12 @@ public class ViewController {
             redirectAttributes.addFlashAttribute("message", "Envie um arquivo");
             return new RedirectView("/");
         }
-        ResponseEntity<BillDetails> billDetailsResponseEntity = paymentRestController.start(file);
-        Optional.ofNullable(billDetailsResponseEntity.getBody())
-                .ifPresentOrElse(billDetails ->
+        ResponseEntity<Payment> paymentResponseEntity = paymentRestController.start(file);
+        Optional.ofNullable(paymentResponseEntity.getBody())
+                .ifPresentOrElse(payment ->
                                 redirectAttributes.addFlashAttribute("message",
                                         String.format("Encontrado conta de %s no valor de R$ %s",
-                                                billDetails.getType(), billDetails.getAmount()))
+                                                payment.getBillType(), payment.getAmount()))
                         , () -> redirectAttributes.addFlashAttribute("message",
                                 "Detalhes da conta não encontrado"));
 
@@ -52,7 +57,7 @@ public class ViewController {
     public RedirectView deletePayment(@PathVariable(name = "payment_id") Long paymentId,
                                       RedirectAttributes redirectAttributes) {
 
-        ResponseEntity<Void> delete = paymentRestController.delete(paymentId);
+        ResponseEntity<Void> delete = deletePaymentRestController.execute(paymentId);
         if(delete.getStatusCode().is2xxSuccessful())
             redirectAttributes.addFlashAttribute("message", "Arquivo excluido com sucesso");
 

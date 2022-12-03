@@ -1,8 +1,8 @@
 package com.tool.craft.service.craft;
 
 import com.tool.craft.config.CraftConfig;
-import com.tool.craft.model.enumm.BillType;
-import com.tool.craft.model.BillDetails;
+import com.tool.craft.domain.enumm.BillType;
+import com.tool.craft.domain.BillDetails;
 import com.tool.craft.service.ocr.LabelAndInputValue;
 import com.tool.craft.service.ocr.Text;
 import com.tool.craft.service.ocr.TextsAndKeyValuePairs;

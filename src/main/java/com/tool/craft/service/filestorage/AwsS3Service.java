@@ -1,4 +1,4 @@
-package com.tool.craft.service.filestorage.impl;
+package com.tool.craft.service.filestorage;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
@@ -7,7 +7,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
-import com.tool.craft.service.filestorage.StorageService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +20,7 @@ import static org.apache.commons.io.FilenameUtils.getExtension;
 
 @Log4j2
 @Service
-public class AwsS3Service implements StorageService {
+public class AwsS3Service {
 
     @Autowired
     private AmazonS3 amazonS3;
@@ -33,7 +32,7 @@ public class AwsS3Service implements StorageService {
         S3Object object = amazonS3.getObject(new GetObjectRequest(bucketName, key));
         return object.getObjectContent().getDelegateStream();
     }
-    @Override
+
     public String save(MultipartFile file) {
 
         TransferManager transferManager = TransferManagerBuilder
@@ -55,7 +54,6 @@ public class AwsS3Service implements StorageService {
         return key;
     }
 
-    @Override
     public void delete(String key) {
         amazonS3.deleteObject(new DeleteObjectRequest(bucketName, key));
     }
